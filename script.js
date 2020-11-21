@@ -286,11 +286,47 @@ function updateEmployeeRole() {
                 employeeToChange = answer.employee_name;
                 changeRole(employeeToChange);
             })
-})
-startPage();
+    })
+    startPage();
 }
 
 function changeRole(name) {
     //We want to target the lines with name 
-startPage();
+    //First find out what the new role is - from the roles table
+    connection.query(
+        "SELECT*FROM role", function (err, results) {
+            if (err) throw err;
+            inquirer
+                .prompt([
+                    {
+                        name: "roleId",
+                        type: "rawlist",
+                        //Populating the role IDs from the role table 
+                        choices: function () {
+                            var roleArray = [];
+                            for (var i = 0; i < results.length; i++) {
+                                roleArray.push(results[i].id);
+                            }
+                            return roleArray;
+                        },
+                        message: `What is ${name}'s new role ID?`
+                    }
+                ])
+                .then(function (answer) {
+                    let newRole = answer.roleId;
+                    changeEmployeeTable(newRole, name);
+                })
+        })
+}
+
+function changeEmployeeTable(newRole, name) {
+    let sqlCommand = `UPDATE employee
+    SET role_id = ${newRole}
+    WHERE last_name="${name}";`;
+    
+    connection.query(sqlCommand, function(err,results){
+        if (err) throw err;
+        console.log(`Successfully updated ${name}'s new role!`);
+        startPage();
+    })
 }
