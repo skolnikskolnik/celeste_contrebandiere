@@ -97,11 +97,54 @@ function addDepartment() {
 }
 
 function addRole() {
-
+    startPage();
 }
 
 function addEmployee() {
-
+    connection.query("SELECT*FROM department", function (err, results) {
+        if (err) throw err;
+        inquirer
+        .prompt([
+            {
+                name: "firstName",
+                type: "input",
+                message: "What is this employees first name?"
+            },
+            {
+                name: "lastName",
+                type: "input",
+                message: "What is this employees last name?"
+            },
+            {
+                name: "roleId",
+                type: "rawlist",
+                //Populating the role IDs from the department table 
+                choices: function(){
+                    var roleArray = [];
+                    for(var i=0; i< results.length; i++){
+                        roleArray.push(results[i].id);
+                    }
+                    return roleArray;
+                },
+                message: "What is this person's role ID?"
+            }
+        ])
+        .then(function(answer){
+            connection.query(
+                "INSERT INTO employee SET?",
+                {
+                    first_name: answer.firstName,
+                    last_name: answer.lastName,
+                    role_id: answer.roleId
+                },
+                function (err) {
+                    if (err) throw err;
+                    console.log(`Successfully added ${answer.first_name} ${answer.last_name} to the employee list`);
+                    startPage();
+                }
+            )
+        })
+    })
 }
 
 function viewDB() {
