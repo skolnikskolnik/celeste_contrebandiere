@@ -35,7 +35,7 @@ function startPage() {
         name: "userPath",
         type: "list",
         message: "What do you want to do?",
-        choices: ["ADD to departments, roles, or employees", "View departments, roles, or employees", "EXIT"]
+        choices: ["ADD to departments, roles, or employees", "View departments, roles, or employees", "Update employee role", "EXIT"]
     })
         .then(function (answer) {
             if (answer.userPath == "ADD to departments, roles, or employees") {
@@ -43,6 +43,9 @@ function startPage() {
             }
             else if (answer.userPath == "View departments, roles, or employees") {
                 viewDB();
+            }
+            else if (answer.userPath == "Update employee role") {
+                updateEmployeeRole();
             }
             else {
                 connection.end();
@@ -202,33 +205,33 @@ function addEmployee() {
 
 //Now we want to view departments, roles, and employees
 function viewDB() {
-  //Do they want to add to departments, roles, or employees?
-  inquirer.prompt({
-    name: "whatToView",
-    type: "list",
-    message: "What do you want to view?",
-    choices: ["department", "role", "employee", "GO BACK"]
-})
-    .then(function (answer) {
-        if (answer.whatToView == "department") {
-            viewDepartment();
-        }
-        else if (answer.whatToView == "role") {
-            viewRole();
-        }
-        else if (answer.whatToView == "employee") {
-            viewEmployees();
-        }
-        else {
-            startPage();
-        }
+    //Do they want to add to departments, roles, or employees?
+    inquirer.prompt({
+        name: "whatToView",
+        type: "list",
+        message: "What do you want to view?",
+        choices: ["department", "role", "employee", "GO BACK"]
     })
+        .then(function (answer) {
+            if (answer.whatToView == "department") {
+                viewDepartment();
+            }
+            else if (answer.whatToView == "role") {
+                viewRole();
+            }
+            else if (answer.whatToView == "employee") {
+                viewEmployees();
+            }
+            else {
+                startPage();
+            }
+        })
 }
 
-function viewDepartment(){
+function viewDepartment() {
     connection.query(
         "SELECT*FROM department",
-        function(err,results){
+        function (err, results) {
             if (err) throw err;
             console.table(results);
         }
@@ -236,10 +239,10 @@ function viewDepartment(){
     startPage();
 }
 
-function viewRole(){
+function viewRole() {
     connection.query(
         "SELECT*FROM role",
-        function(err,results){
+        function (err, results) {
             if (err) throw err;
             console.table(results);
         }
@@ -247,13 +250,47 @@ function viewRole(){
     startPage();
 }
 
-function viewEmployees(){
+function viewEmployees() {
     connection.query(
         "SELECT*FROM employee",
-        function(err,results){
+        function (err, results) {
             if (err) throw err;
             console.table(results);
         }
     );
     startPage();
+}
+
+//Updating employee role
+function updateEmployeeRole() {
+    //Fine out what employee they want to change
+    let employeeToChange = "";
+    connection.query("SELECT*FROM employee", function (err, results) {
+        if (err) throw err;
+        inquirer
+            .prompt([
+                {
+                    name: "employee_name",
+                    type: "rawlist",
+                    choices: function () {
+                        var nameArray = [];
+                        for (var i = 0; i < results.length; i++) {
+                            nameArray.push(results[i].last_name);
+                        }
+                        return nameArray;
+                    },
+                    message: "Which employee do you want to change the role of?"
+                }
+            ])
+            .then(function (answer) {
+                employeeToChange = answer.employee_name;
+                changeRole(employeeToChange);
+            })
+})
+startPage();
+}
+
+function changeRole(name) {
+    //We want to target the lines with name 
+startPage();
 }
