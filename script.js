@@ -2,7 +2,7 @@
 //Must install express, inquirer, and mysql
 const mysql = require('mysql');
 const inquirer = require('inquirer');
-const { allowedNodeEnvironmentFlags } = require('process');
+const cTable = require('console.table');
 
 //Connects to database
 const connection = mysql.createConnection({
@@ -50,6 +50,7 @@ function startPage() {
         })
 }
 
+//addToDB, addDepartment, addRole, and addEmployee all concern adding to the existing DB
 function addToDB() {
     //Do they want to add to departments, roles, or employees?
     inquirer.prompt({
@@ -73,7 +74,6 @@ function addToDB() {
             }
         })
 }
-
 
 function addDepartment() {
     inquirer
@@ -200,7 +200,60 @@ function addEmployee() {
     })
 }
 
+//Now we want to view departments, roles, and employees
 function viewDB() {
-    console.log("viewing!");
+  //Do they want to add to departments, roles, or employees?
+  inquirer.prompt({
+    name: "whatToView",
+    type: "list",
+    message: "What do you want to view?",
+    choices: ["department", "role", "employee", "GO BACK"]
+})
+    .then(function (answer) {
+        if (answer.whatToView == "department") {
+            viewDepartment();
+        }
+        else if (answer.whatToView == "role") {
+            viewRole();
+        }
+        else if (answer.whatToView == "employee") {
+            viewEmployees();
+        }
+        else {
+            startPage();
+        }
+    })
+}
+
+function viewDepartment(){
+    connection.query(
+        "SELECT*FROM department",
+        function(err,results){
+            if (err) throw err;
+            console.table(results);
+        }
+    );
+    startPage();
+}
+
+function viewRole(){
+    connection.query(
+        "SELECT*FROM role",
+        function(err,results){
+            if (err) throw err;
+            console.table(results);
+        }
+    );
+    startPage();
+}
+
+function viewEmployees(){
+    connection.query(
+        "SELECT*FROM employee",
+        function(err,results){
+            if (err) throw err;
+            console.table(results);
+        }
+    );
     startPage();
 }
