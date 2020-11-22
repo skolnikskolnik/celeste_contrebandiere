@@ -35,7 +35,7 @@ function startPage() {
         name: "userPath",
         type: "list",
         message: "What do you want to do?",
-        choices: ["ADD to departments, roles, or employees", "View departments, roles, or employees", "Update employee role", "EXIT"]
+        choices: ["ADD to departments, roles, or employees", "View departments, roles, or employees", "Update employee role", "Add manager to employee", "EXIT"]
     })
         .then(function (answer) {
             if (answer.userPath == "ADD to departments, roles, or employees") {
@@ -46,6 +46,9 @@ function startPage() {
             }
             else if (answer.userPath == "Update employee role") {
                 updateEmployeeRole();
+            }
+            else if (answer.userPath == "Add manager to employee") {
+                addManager();
             }
             else {
                 connection.end();
@@ -323,10 +326,63 @@ function changeEmployeeTable(newRole, name) {
     let sqlCommand = `UPDATE employee
     SET role_id = ${newRole}
     WHERE last_name="${name}";`;
-    
-    connection.query(sqlCommand, function(err,results){
+
+    connection.query(sqlCommand, function (err, results) {
         if (err) throw err;
         console.log(`Successfully updated ${name}'s new role!`);
         startPage();
     })
+}
+
+//Adding manager to existing employee
+function addManager() {
+    //First need to get the employee
+    //Fine out what employee they want to change
+    let employeeToChange = "";
+    connection.query("SELECT*FROM employee", function (err, results) {
+        if (err) throw err;
+        inquirer
+            .prompt([
+                {
+                    name: "employee_name",
+                    type: "rawlist",
+                    choices: function () {
+                        var nameArray = [];
+                        for (var i = 0; i < results.length; i++) {
+                            nameArray.push(results[i].last_name);
+                        }
+                        return nameArray;
+                    },
+                    message: "Which employee do you want to change the role of?"
+                }
+            ])
+            .then(function (answer) {
+                employeeToChange = answer.employee_name;
+                changeManager(employeeToChange);
+            })
+    })
+}
+
+function changeManager(employee_name) {
+    //Use inquirer to get name of manager to be added
+    console.log(employee_name);
+    inquirer
+        .prompt([
+            {
+                name: "manager",
+                type: "input",
+                message: "What is the name of the manager?"
+            }
+        ])
+        .then(function (answer) {
+            connection.query(
+                `UPDATE employee
+            SET manager="${answer.manager}"
+            WHERE last_name="${employee_name}"`
+            )
+            console.log(`Sucessfully updated ${employee_name}'s manager to ${answer.manager}`);
+            startPage();
+        })
+
+    
 }
