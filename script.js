@@ -500,7 +500,36 @@ function makeTableToDelete(department){
 }
 
 function deleteRole(){
-    console.log("role");
+connection.query("SELECT*FROM role", function (err,results){
+    if (err) throw err;
+    inquirer
+    .prompt([
+        {
+            name: "role_to_delete",
+            type: "rawlist",
+            choices: function(){
+                var rolesToDelete = [];
+                for(var i=0; i< results.length; i++){
+                    rolesToDelete.push(results[i].title);
+                }
+                return rolesToDelete;
+            },
+            message: "What role do you want to delete?"
+        }
+    ])
+    .then(function(answer){
+        let removeRoleEntries = answer.role_to_delete;
+        makeRoleToDelete(removeRoleEntries);
+    })
+})
+}
+
+function makeRoleToDelete(role){
+    connection.query(`DELETE FROM role WHERE title="${role}"`, function(err,results){
+        if (err) throw err;
+        console.log(`Successfully deleter ${role} role.`)
+    })
+
     startPage();
 }
 
