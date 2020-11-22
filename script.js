@@ -628,11 +628,22 @@ function tableOrTotal(department) {
 }
 
 function viewDepartmentTable(department) {
-    console.log(`View test ${department}`);
-    startPage();
+    connection.query(
+        `SELECT department.id, department.name, role.id AS role_id, role.title, role.salary, employee.last_name
+        FROM department
+        INNER JOIN role
+        ON role.department_id = department.id
+        INNER JOIN employee
+        ON employee.role_id = role.id
+        WHERE department.name="${department}"`,
+        function (err, results) {
+            if (err) throw err;
+            console.table(results);
+            startPage();
+        }
+    );
 }
 
 function calculateBudget(department) {
-    console.log(`Calculate test ${department}`);
     startPage();
 }
