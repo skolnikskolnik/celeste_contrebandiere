@@ -35,8 +35,9 @@ function startPage() {
         name: "userPath",
         type: "list",
         message: "What do you want to do?",
-        choices: ["ADD to departments, roles, or employees", "View departments, roles, or employees", 
-        "Update employee role", "Add manager to employee","View employees by manager","Delete departments, roles, or employees", "EXIT"]
+        choices: ["ADD to departments, roles, or employees", "View departments, roles, or employees",
+            "Update employee role", "Add manager to employee", "View employees by manager",
+            "Delete departments, roles, or employees", "View budget by department", "EXIT"]
     })
         .then(function (answer) {
             if (answer.userPath == "ADD to departments, roles, or employees") {
@@ -56,6 +57,9 @@ function startPage() {
             }
             else if (answer.userPath == "Delete departments, roles, or employees") {
                 deleteFxn();
+            }
+            else if (answer.userPath == "View budget by department") {
+                viewBudget();
             }
             else {
                 connection.end();
@@ -391,11 +395,11 @@ function changeManager(employee_name) {
             startPage();
         })
 
-    
+
 }
 
 //Viewing the employees of a manager - using "TestManager" when testing 
-function viewEmployeeByManager(){
+function viewEmployeeByManager() {
     //First need to get the employee
     //Fine out what employee they want to change
     let managerSelected = "";
@@ -424,7 +428,7 @@ function viewEmployeeByManager(){
     })
 }
 
-function printEmployeeTable(manager){
+function printEmployeeTable(manager) {
     connection.query(
         `SELECT*FROM employee WHERE manager="${manager}"`,
         function (err, results) {
@@ -438,10 +442,10 @@ function printEmployeeTable(manager){
 
 //Functions to delete departments, roles, and/or employees
 
-function deleteFxn(){
+function deleteFxn() {
     //Use inquirer to determine what they want to delete
-      //Do they want to add to departments, roles, or employees?
-      inquirer.prompt({
+    //Do they want to add to departments, roles, or employees?
+    inquirer.prompt({
         name: "whatToDelete",
         type: "list",
         message: "What do you want to delete?",
@@ -463,35 +467,35 @@ function deleteFxn(){
         })
 }
 
-function deleteDepartment(){
+function deleteDepartment() {
     //Need to first select the department to delete in inquirer
-    connection.query("SELECT*FROM department", function (err,results){
+    connection.query("SELECT*FROM department", function (err, results) {
         if (err) throw err;
         inquirer
-        .prompt([
-            {
-                name: "department_to_delete",
-                type: "rawlist",
-                choices: function(){
-                    var deleteDepartment = [];
-                    for(var i=0; i< results.length; i++){
-                        deleteDepartment.push(results[i].name);
-                    }
-                    return deleteDepartment;
-                },
-                message: "What department do you want to delete?"
-            }
-        ])
-        .then(function(answer){
-            let departmentToDelete = answer.department_to_delete;
-            makeTableToDelete(departmentToDelete);
-        })
+            .prompt([
+                {
+                    name: "department_to_delete",
+                    type: "rawlist",
+                    choices: function () {
+                        var deleteDepartment = [];
+                        for (var i = 0; i < results.length; i++) {
+                            deleteDepartment.push(results[i].name);
+                        }
+                        return deleteDepartment;
+                    },
+                    message: "What department do you want to delete?"
+                }
+            ])
+            .then(function (answer) {
+                let departmentToDelete = answer.department_to_delete;
+                makeTableToDelete(departmentToDelete);
+            })
     })
 }
 
-function makeTableToDelete(department){
+function makeTableToDelete(department) {
     //department is the name of the department to delete
-    connection.query(`DELETE FROM department WHERE name="${department}"`, function(err,results){
+    connection.query(`DELETE FROM department WHERE name="${department}"`, function (err, results) {
         if (err) throw err;
         console.log(`Successfully deleter ${department} department.`)
     })
@@ -499,33 +503,33 @@ function makeTableToDelete(department){
     startPage();
 }
 
-function deleteRole(){
-connection.query("SELECT*FROM role", function (err,results){
-    if (err) throw err;
-    inquirer
-    .prompt([
-        {
-            name: "role_to_delete",
-            type: "rawlist",
-            choices: function(){
-                var rolesToDelete = [];
-                for(var i=0; i< results.length; i++){
-                    rolesToDelete.push(results[i].title);
+function deleteRole() {
+    connection.query("SELECT*FROM role", function (err, results) {
+        if (err) throw err;
+        inquirer
+            .prompt([
+                {
+                    name: "role_to_delete",
+                    type: "rawlist",
+                    choices: function () {
+                        var rolesToDelete = [];
+                        for (var i = 0; i < results.length; i++) {
+                            rolesToDelete.push(results[i].title);
+                        }
+                        return rolesToDelete;
+                    },
+                    message: "What role do you want to delete?"
                 }
-                return rolesToDelete;
-            },
-            message: "What role do you want to delete?"
-        }
-    ])
-    .then(function(answer){
-        let removeRoleEntries = answer.role_to_delete;
-        makeRoleToDelete(removeRoleEntries);
+            ])
+            .then(function (answer) {
+                let removeRoleEntries = answer.role_to_delete;
+                makeRoleToDelete(removeRoleEntries);
+            })
     })
-})
 }
 
-function makeRoleToDelete(role){
-    connection.query(`DELETE FROM role WHERE title="${role}"`, function(err,results){
+function makeRoleToDelete(role) {
+    connection.query(`DELETE FROM role WHERE title="${role}"`, function (err, results) {
         if (err) throw err;
         console.log(`Successfully deleted ${role} role.`)
     })
@@ -533,36 +537,102 @@ function makeRoleToDelete(role){
     startPage();
 }
 
-function deleteEmployees(){
-    connection.query("SELECT*FROM employee", function (err,results){
+function deleteEmployees() {
+    connection.query("SELECT*FROM employee", function (err, results) {
         if (err) throw err;
         inquirer
-        .prompt([
-            {
-                name: "employee_to_delete",
-                type: "rawlist",
-                choices: function(){
-                    var employeeToDelete = [];
-                    for(var i=0; i< results.length; i++){
-                        employeeToDelete.push(results[i].last_name);
-                    }
-                    return employeeToDelete;
-                },
-                message: "What employee do you want to remove?"
-            }
-        ])
-        .then(function(answer){
-            let removeLastName = answer.employee_to_delete;
-            makeEmployeeToDelete(removeLastName);
-        })
+            .prompt([
+                {
+                    name: "employee_to_delete",
+                    type: "rawlist",
+                    choices: function () {
+                        var employeeToDelete = [];
+                        for (var i = 0; i < results.length; i++) {
+                            employeeToDelete.push(results[i].last_name);
+                        }
+                        return employeeToDelete;
+                    },
+                    message: "What employee do you want to remove?"
+                }
+            ])
+            .then(function (answer) {
+                let removeLastName = answer.employee_to_delete;
+                makeEmployeeToDelete(removeLastName);
+            })
     })
 }
 
-function makeEmployeeToDelete(employee){
-    connection.query(`DELETE FROM employee WHERE last_name="${employee}"`, function(err,results){
+function makeEmployeeToDelete(employee) {
+    connection.query(`DELETE FROM employee WHERE last_name="${employee}"`, function (err, results) {
         if (err) throw err;
         console.log(`Successfully deleted ${employee} from database.`)
     })
 
+    startPage();
+}
+
+//Series of functions for viewing budget by department
+function viewBudget() {
+    let departmentChosen = "";
+    //Use inquirer to determine which department they want to view the budget for
+    connection.query("SELECT*FROM department", function (err, results) {
+        if (err) throw err;
+        inquirer
+            .prompt([
+                {
+                    name: "department",
+                    type: "rawlist",
+                    choices: function () {
+                        var departmentsChoices = [];
+                        for (var i = 0; i < results.length; i++) {
+                            departmentsChoices.push(results[i].name);
+                        }
+                        return departmentsChoices;
+                    },
+                    message: "Which department do you want to view the budget for?"
+                }
+            ])
+            .then(function (answer) {
+                departmentChosen = answer.department;
+                console.log(`Test#1 ${departmentChosen}`);
+                tableOrTotal(departmentChosen);
+            })
+    })
+
+}
+
+function tableOrTotal(department) {
+    //Use inquirer to determine if the person wants to just view the table or if they want the total budget
+    inquirer
+        .prompt([
+            {
+                name: "tableOrTotal",
+                type: "rawlist",
+                message: "What do you want to do?",
+                choices: ["View the table", "See overall budget for the department", "START OVER"]
+            }
+        ])
+        .then(function (answer) {
+            let choice = answer.tableOrTotal;
+            if (choice == "View the table") {
+                viewDepartmentTable(department);
+            }
+            else if (choice == "See overall budget for the department") {
+                calculateBudget(department);
+            }
+            else {
+                startPage();
+            }
+        })
+
+}
+
+function viewDepartmentTable(department) {
+    console.log(`View test ${department}`);
+    startPage();
+}
+
+function calculateBudget(department) {
+    console.log(`Calculate test ${department}`);
     startPage();
 }
