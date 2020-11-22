@@ -464,7 +464,38 @@ function deleteFxn(){
 }
 
 function deleteDepartment(){
-    console.log("department");
+    //Need to first select the department to delete in inquirer
+    connection.query("SELECT*FROM department", function (err,results){
+        if (err) throw err;
+        inquirer
+        .prompt([
+            {
+                name: "department_to_delete",
+                type: "rawlist",
+                choices: function(){
+                    var deleteDepartment = [];
+                    for(var i=0; i< results.length; i++){
+                        deleteDepartment.push(results[i].name);
+                    }
+                    return deleteDepartment;
+                },
+                message: "What department do you want to delete?"
+            }
+        ])
+        .then(function(answer){
+            let departmentToDelete = answer.department_to_delete;
+            makeTableToDelete(departmentToDelete);
+        })
+    })
+}
+
+function makeTableToDelete(department){
+    //department is the name of the department to delete
+    connection.query(`DELETE FROM department WHERE name="${department}"`, function(err,results){
+        if (err) throw err;
+        console.log(`Successfully deleter ${department} department.`)
+    })
+
     startPage();
 }
 
