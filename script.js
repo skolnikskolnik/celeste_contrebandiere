@@ -276,7 +276,6 @@ function printTable(string){
 
 
 
-
 //Updating employee role
 function updateEmployeeRole() {
     //Fine out what employee they want to change
@@ -429,24 +428,12 @@ function viewEmployeeByManager() {
             ])
             .then(function (answer) {
                 managerSelected = answer.manager_name;
-                printEmployeeTable(managerSelected);
+                let sqlString=`SELECT*FROM employee WHERE manager="${managerSelected}"`;
+                printTable(sqlString);
+                startPage();
             })
     })
 }
-
-function printEmployeeTable(manager) {
-    connection.query(
-        `SELECT*FROM employee WHERE manager="${manager}"`,
-        function (err, results) {
-            if (err) throw err;
-            console.table(results);
-        }
-    );
-    startPage();
-
-}
-
-
 
 
 //Functions to delete departments, roles, and/or employees
