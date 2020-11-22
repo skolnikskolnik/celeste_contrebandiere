@@ -67,6 +67,8 @@ function startPage() {
         })
 }
 
+
+
 //addToDB, addDepartment, addRole, and addEmployee all concern adding to the existing DB
 function addToDB() {
     //Do they want to add to departments, roles, or employees?
@@ -117,6 +119,10 @@ function addDepartment() {
 }
 
 function addRole() {
+    let sqlString = `SELECT*FROM department`;
+
+    printTable(sqlString);
+
     connection.query("SELECT*FROM department", function (err, results) {
         if (err) throw err;
         inquirer
@@ -141,9 +147,9 @@ function addRole() {
                 {
                     name: "departmentId",
                     type: "rawlist",
-                    //Populating the department IDs from the department table 
+                    //Populating the department roless from the department table 
                     choices: function () {
-                        var departmentArray = [];
+                        let departmentArray = [];
                         for (var i = 0; i < results.length; i++) {
                             departmentArray.push(results[i].id);
                         }
@@ -162,7 +168,7 @@ function addRole() {
                     },
                     function (err) {
                         if (err) throw err;
-                        console.log(`Successfully added ${answer.roleTitle} role at a salary of ${answer.salary} in department number ${answer.department_id}`);
+                        console.log(`Successfully added ${answer.Title} role at a salary of ${answer.salary} in department number ${answer.department_id}`);
                         startPage();
                     }
                 )
@@ -170,7 +176,13 @@ function addRole() {
     })
 }
 
+
+
 function addEmployee() {
+    let sqlString = `SELECT*FROM role`;
+
+    printTable(sqlString);
+
     connection.query("SELECT*FROM role", function (err, results) {
         if (err) throw err;
         inquirer
@@ -192,7 +204,7 @@ function addEmployee() {
                     choices: function () {
                         var roleArray = [];
                         for (var i = 0; i < results.length; i++) {
-                            roleArray.push(results[i].role_id);
+                            roleArray.push(results[i].id);
                         }
                         return roleArray;
                     },
@@ -217,8 +229,11 @@ function addEmployee() {
     })
 }
 
+
+
 //Now we want to view departments, roles, and employees
 function viewDB() {
+    let sqlString="";
     //Do they want to add to departments, roles, or employees?
     inquirer.prompt({
         name: "whatToView",
@@ -228,13 +243,19 @@ function viewDB() {
     })
         .then(function (answer) {
             if (answer.whatToView == "department") {
-                viewDepartment();
+                sqlString = `SELECT*FROM department`;
+                printTable(sqlString);
+                startPage();
             }
             else if (answer.whatToView == "role") {
-                viewRole();
+                sqlString = "SELECT*FROM role";
+                printTable(sqlString);
+                startPage();
             }
             else if (answer.whatToView == "employee") {
-                viewEmployees();
+                sqlString = "SELECT*FROM employee";
+                printTable(sqlString);
+                startPage();
             }
             else {
                 startPage();
@@ -242,38 +263,19 @@ function viewDB() {
         })
 }
 
-function viewDepartment() {
+function printTable(string){
     connection.query(
-        "SELECT*FROM department",
+        `${string}`,
         function (err, results) {
             if (err) throw err;
             console.table(results);
         }
     );
-    startPage();
 }
 
-function viewRole() {
-    connection.query(
-        "SELECT*FROM role",
-        function (err, results) {
-            if (err) throw err;
-            console.table(results);
-        }
-    );
-    startPage();
-}
 
-function viewEmployees() {
-    connection.query(
-        "SELECT*FROM employee",
-        function (err, results) {
-            if (err) throw err;
-            console.table(results);
-        }
-    );
-    startPage();
-}
+
+
 
 //Updating employee role
 function updateEmployeeRole() {
@@ -345,6 +347,8 @@ function changeEmployeeTable(newRole, name) {
     })
 }
 
+
+
 //Adding manager to existing employee
 function addManager() {
     //First need to get the employee
@@ -398,6 +402,8 @@ function changeManager(employee_name) {
 
 }
 
+
+
 //Viewing the employees of a manager - using "TestManager" when testing 
 function viewEmployeeByManager() {
     //First need to get the employee
@@ -439,6 +445,9 @@ function printEmployeeTable(manager) {
     startPage();
 
 }
+
+
+
 
 //Functions to delete departments, roles, and/or employees
 
@@ -571,6 +580,8 @@ function makeEmployeeToDelete(employee) {
     startPage();
 }
 
+
+
 //Series of functions for viewing budget by department
 function viewBudget() {
     let departmentChosen = "";
@@ -655,8 +666,8 @@ function calculateBudget(department) {
         WHERE department.name="${department}"`,
         function (err, results) {
             if (err) throw err;
-            var salaryTotal=0;
-            for(var i=0; i<results.length; i++){
+            var salaryTotal = 0;
+            for (var i = 0; i < results.length; i++) {
                 var salary = results[i].salary;
                 salary = parseInt(salary);
                 salaryTotal += salary;
