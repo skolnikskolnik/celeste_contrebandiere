@@ -35,7 +35,8 @@ function startPage() {
         name: "userPath",
         type: "list",
         message: "What do you want to do?",
-        choices: ["ADD to departments, roles, or employees", "View departments, roles, or employees", "Update employee role", "Add manager to employee", "EXIT"]
+        choices: ["ADD to departments, roles, or employees", "View departments, roles, or employees", 
+        "Update employee role", "Add manager to employee","View employees by manager", "EXIT"]
     })
         .then(function (answer) {
             if (answer.userPath == "ADD to departments, roles, or employees") {
@@ -49,6 +50,9 @@ function startPage() {
             }
             else if (answer.userPath == "Add manager to employee") {
                 addManager();
+            }
+            else if (answer.userPath == "View employees by manager") {
+                viewEmployeeByManager();
             }
             else {
                 connection.end();
@@ -385,4 +389,46 @@ function changeManager(employee_name) {
         })
 
     
+}
+
+//Viewing the employees of a manager - using "TestManager" when testing 
+function viewEmployeeByManager(){
+    //First need to get the employee
+    //Fine out what employee they want to change
+    let managerSelected = "";
+    connection.query(`SELECT*FROM employee
+    WHERE manager IS NOT NULL`, function (err, results) {
+        if (err) throw err;
+        inquirer
+            .prompt([
+                {
+                    name: "manager_name",
+                    type: "rawlist",
+                    choices: function () {
+                        var managersArray = [];
+                        for (var i = 0; i < results.length; i++) {
+                            managersArray.push(results[i].manager);
+                        }
+                        return managersArray;
+                    },
+                    message: "Which manager do you want to view employees for?"
+                }
+            ])
+            .then(function (answer) {
+                managerSelected = answer.manager_name;
+                printEmployeeTable(managerSelected);
+            })
+    })
+}
+
+function printEmployeeTable(manager){
+    connection.query(
+        `SELECT*FROM employee WHERE manager="${manager}"`,
+        function (err, results) {
+            if (err) throw err;
+            console.table(results);
+        }
+    );
+    startPage();
+
 }

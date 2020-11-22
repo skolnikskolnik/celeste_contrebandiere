@@ -12,6 +12,9 @@ primary key(id)
 
 select*from department;
 
+insert into department(name)
+values("software development");
+
 
 create table role(
 id int not null auto_increment,
@@ -22,7 +25,7 @@ primary key(id)
 );
 
 insert into role(title, salary, department_id)
-values("accountant", 70000, 1);
+values("teacher", 65000, 2);
 
 select*from role;
 
@@ -34,4 +37,17 @@ role_id integer,
 primary key(id)
 );
 
+SELECT*FROM employee
+WHERE manager="TestManager";
+
+ALTER TABLE employee
+ADD manager varchar(50);
+
+insert into employee(first_name, last_name, role_id)
+values("Theresa","Test", 3);
+
+insert into employee(first_name, last_name, role_id, manager)
+values("Matilda", "Brown", 4, "BadManager");
+
 select*from employee;
+
