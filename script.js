@@ -36,7 +36,7 @@ function startPage() {
         type: "list",
         message: "What do you want to do?",
         choices: ["ADD to departments, roles, or employees", "View departments, roles, or employees", 
-        "Update employee role", "Add manager to employee","View employees by manager", "EXIT"]
+        "Update employee role", "Add manager to employee","View employees by manager","Delete departments, roles, or employees", "EXIT"]
     })
         .then(function (answer) {
             if (answer.userPath == "ADD to departments, roles, or employees") {
@@ -53,6 +53,9 @@ function startPage() {
             }
             else if (answer.userPath == "View employees by manager") {
                 viewEmployeeByManager();
+            }
+            else if (answer.userPath == "Delete departments, roles, or employees") {
+                deleteFxn();
             }
             else {
                 connection.end();
@@ -431,4 +434,46 @@ function printEmployeeTable(manager){
     );
     startPage();
 
+}
+
+//Functions to delete departments, roles, and/or employees
+
+function deleteFxn(){
+    //Use inquirer to determine what they want to delete
+      //Do they want to add to departments, roles, or employees?
+      inquirer.prompt({
+        name: "whatToDelete",
+        type: "list",
+        message: "What do you want to delete?",
+        choices: ["department", "role", "employee", "GO BACK"]
+    })
+        .then(function (answer) {
+            if (answer.whatToDelete == "department") {
+                deleteDepartment();
+            }
+            else if (answer.whatToDelete == "role") {
+                deleteRole();
+            }
+            else if (answer.whatToDelete == "employee") {
+                deleteEmployees();
+            }
+            else {
+                startPage();
+            }
+        })
+}
+
+function deleteDepartment(){
+    console.log("department");
+    startPage();
+}
+
+function deleteRole(){
+    console.log("role");
+    startPage();
+}
+
+function deleteEmployees(){
+    console.log("employee");
+    startPage();
 }
