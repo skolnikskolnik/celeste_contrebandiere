@@ -645,5 +645,24 @@ function viewDepartmentTable(department) {
 }
 
 function calculateBudget(department) {
-    startPage();
+    connection.query(
+        `SELECT department.id, department.name, role.id AS role_id, role.title, role.salary, employee.last_name
+        FROM department
+        INNER JOIN role
+        ON role.department_id = department.id
+        INNER JOIN employee
+        ON employee.role_id = role.id
+        WHERE department.name="${department}"`,
+        function (err, results) {
+            if (err) throw err;
+            var salaryTotal=0;
+            for(var i=0; i<results.length; i++){
+                var salary = results[i].salary;
+                salary = parseInt(salary);
+                salaryTotal += salary;
+            }
+            console.log(`The total payroll for the ${department} department is ${salaryTotal}`);
+            startPage();
+        }
+    );
 }
