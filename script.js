@@ -527,13 +527,42 @@ connection.query("SELECT*FROM role", function (err,results){
 function makeRoleToDelete(role){
     connection.query(`DELETE FROM role WHERE title="${role}"`, function(err,results){
         if (err) throw err;
-        console.log(`Successfully deleter ${role} role.`)
+        console.log(`Successfully deleted ${role} role.`)
     })
 
     startPage();
 }
 
 function deleteEmployees(){
-    console.log("employee");
+    connection.query("SELECT*FROM employee", function (err,results){
+        if (err) throw err;
+        inquirer
+        .prompt([
+            {
+                name: "employee_to_delete",
+                type: "rawlist",
+                choices: function(){
+                    var employeeToDelete = [];
+                    for(var i=0; i< results.length; i++){
+                        employeeToDelete.push(results[i].last_name);
+                    }
+                    return employeeToDelete;
+                },
+                message: "What employee do you want to remove?"
+            }
+        ])
+        .then(function(answer){
+            let removeLastName = answer.employee_to_delete;
+            makeEmployeeToDelete(removeLastName);
+        })
+    })
+}
+
+function makeEmployeeToDelete(employee){
+    connection.query(`DELETE FROM employee WHERE last_name="${employee}"`, function(err,results){
+        if (err) throw err;
+        console.log(`Successfully deleted ${employee} from database.`)
+    })
+
     startPage();
 }
