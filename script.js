@@ -168,7 +168,7 @@ function addRole() {
                     },
                     function (err) {
                         if (err) throw err;
-                        console.log(`Successfully added ${answer.Title} role at a salary of ${answer.salary} in department number ${answer.department_id}`);
+                        console.log(`Successfully added ${answer.title} role at a salary of ${answer.salary} in department number ${answer.department_id}`);
                         startPage();
                     }
                 )
@@ -179,7 +179,7 @@ function addRole() {
 
 
 function addEmployee() {
-    let sqlString = `SELECT*FROM role`;
+    let sqlString = `SELECT id, title FROM role`;
 
     printTable(sqlString);
 
@@ -239,20 +239,20 @@ function viewDB() {
         name: "whatToView",
         type: "list",
         message: "What do you want to view?",
-        choices: ["department", "role", "employee", "GO BACK"]
+        choices: ["departments", "roles", "employees", "GO BACK"]
     })
         .then(function (answer) {
-            if (answer.whatToView == "department") {
+            if (answer.whatToView == "departments") {
                 sqlString = `SELECT*FROM department`;
                 printTable(sqlString);
                 startPage();
             }
-            else if (answer.whatToView == "role") {
+            else if (answer.whatToView == "roles") {
                 sqlString = "SELECT*FROM role";
                 printTable(sqlString);
                 startPage();
             }
-            else if (answer.whatToView == "employee") {
+            else if (answer.whatToView == "employees") {
                 sqlString = "SELECT*FROM employee";
                 printTable(sqlString);
                 startPage();
@@ -308,6 +308,9 @@ function updateEmployeeRole() {
 function changeRole(name) {
     //We want to target the lines with name 
     //First find out what the new role is - from the roles table
+    let sqlString = `SELECT id, title FROM role`;
+
+    printTable(sqlString);
     connection.query(
         "SELECT*FROM role", function (err, results) {
             if (err) throw err;
@@ -379,7 +382,6 @@ function addManager() {
 
 function changeManager(employee_name) {
     //Use inquirer to get name of manager to be added
-    console.log(employee_name);
     inquirer
         .prompt([
             {
@@ -613,7 +615,16 @@ function tableOrTotal(department) {
         .then(function (answer) {
             let choice = answer.tableOrTotal;
             if (choice == "View the table") {
-                viewDepartmentTable(department);
+                let sqlString=`SELECT department.id, department.name, role.id AS role_id, role.title, role.salary, employee.last_name
+                FROM department
+                INNER JOIN role
+                ON role.department_id = department.id
+                INNER JOIN employee
+                ON employee.role_id = role.id
+                WHERE department.name="${department}"`;
+
+                printTable(sqlString);
+                startPage();
             }
             else if (choice == "See overall budget for the department") {
                 calculateBudget(department);
@@ -625,22 +636,7 @@ function tableOrTotal(department) {
 
 }
 
-function viewDepartmentTable(department) {
-    connection.query(
-        `SELECT department.id, department.name, role.id AS role_id, role.title, role.salary, employee.last_name
-        FROM department
-        INNER JOIN role
-        ON role.department_id = department.id
-        INNER JOIN employee
-        ON employee.role_id = role.id
-        WHERE department.name="${department}"`,
-        function (err, results) {
-            if (err) throw err;
-            console.table(results);
-            startPage();
-        }
-    );
-}
+
 
 function calculateBudget(department) {
     connection.query(

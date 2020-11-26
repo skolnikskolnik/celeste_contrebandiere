@@ -13,7 +13,7 @@ primary key(id)
 select*from department;
 
 SELECT*FROM department
-WHERE name="accounting";
+WHERE name="witchcraft and wizardry";
 
 
 insert into department(name)
@@ -35,7 +35,9 @@ primary key(id)
 insert into role(title, salary, department_id)
 values("teacher", 65000, 2);
 
-select*from role;
+SELECT*FROM role;
+
+SELECT id, title FROM role;
 
 ALTER TABLE role
 ADD CONSTRAINT fk_department FOREIGN KEY(department_id) REFERENCES department (id) 
@@ -69,6 +71,7 @@ values("Matilda", "Brown", 4, "BadManager");
 
 select*from employee;
 
+
 SELECT employee.id, employee.first_name, employee.last_name, role.title
 FROM employee
 LEFT JOIN role
@@ -81,6 +84,11 @@ ON role.department_id = department.id
 INNER JOIN employee
 ON employee.role_id = role.id
 WHERE department.name="accounting";
+
+SELECT role.title, role.salary, department.id, department.name
+FROM role
+INNER JOIN department
+ON role.department_id=department.id; 
 
 
 
